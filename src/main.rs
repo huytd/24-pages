@@ -1,6 +1,6 @@
 const STACK_SIZE: usize = 1024;
 
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub enum OpCode {
     PUSH(i32),
     ADD,
@@ -103,7 +103,7 @@ impl VirtualMachine {
                 },
                 OpCode::PRINT => {
                     if let Some(data) = self.stack.pop() {
-                        println!("> {}", data);
+                        println!("[ OUTPUT] {}", data);
                         self.pc += 1;
                     } else {
                         println!("[ERROR] Invalid PRINT call!");
@@ -112,8 +112,13 @@ impl VirtualMachine {
                 },
                 OpCode::HALT => is_running = false
             }
+            debug_print(&opcode, &self.stack);
         }
     }
+}
+
+fn debug_print(opcode: &OpCode, stack: &Vec<i32>) {
+    println!("[EXECUTE] {:?}\n[  STACK] = {:?}", opcode, stack);
 }
 
 // The VM is gonna execute the following program:
@@ -145,5 +150,4 @@ fn main() {
         Instruction::new(13, OpCode::HALT),
     ]);
     vm.execute();
-    println!("STACK = {:#?}", vm.stack);
 }
