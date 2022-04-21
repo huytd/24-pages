@@ -1,3 +1,6 @@
+const STACK_SIZE: usize = 1024;
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub enum OpCode {
     PUSH(i32),
     ADD,
@@ -28,13 +31,41 @@ impl VirtualMachine {
     pub fn new() -> Self {
         Self {
             program: vec![],
-            stack: vec![],
+            stack: vec![0; STACK_SIZE],
             pc: 0
         }
     }
     
     pub fn load_program(&mut self, program: Vec<Instruction>) {
         self.program = program;
+    }
+
+    pub fn execute(&mut self) {
+        let mut is_running = true;
+        while is_running {
+            let Instruction { opcode, .. } = &self.program[self.pc];
+            match opcode {
+                OpCode::PUSH(val) => {
+                    self.stack.push(*val);
+                },
+                OpCode::ADD => {
+                    let (a, b) = (self.stack.pop(), self.stack.pop());
+                    if a.is_some() && b.is_some() {
+
+                    } else {
+                        println!("[ERROR] Not enough data in the stack.");
+                    }
+                },
+                OpCode::CMP => is_running = false,
+                OpCode::JMP(loc) => is_running = false,
+                OpCode::PRINT => {
+                    if let Some(data) = self.stack.pop() {
+                        println!("> {}", data);
+                    }
+                },
+                OpCode::HALT => is_running = false
+            }
+        }
     }
 }
 
@@ -66,4 +97,6 @@ fn main() {
         Instruction::new(12, OpCode::JMP(13)),
         Instruction::new(13, OpCode::HALT),
     ]);
+    vm.execute();
+    println!("{:#?}", vm.stack);
 }
